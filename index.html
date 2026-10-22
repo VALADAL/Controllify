@@ -716,7 +716,7 @@ function updateMediaSession(s, t) {
         artwork: arts
       });
     }
-    startKeepAudio();   // el audio silencioso sigue también en pausa: así la sesión de medios no desaparece al pausar
+    if (s.paused) { stopKeepAudio(); } else { startKeepAudio(); }   // Windows toma el estado (Playing/Paused) del audio real, así que el silencioso debe seguir al reproductor
     ms.playbackState = s.paused ? "paused" : "playing";
     if (ms.setPositionState && s.duration > 0) {
       ms.setPositionState({ duration: s.duration / 1000, playbackRate: 1, position: Math.min(s.position, s.duration) / 1000 });
@@ -758,7 +758,7 @@ function initMediaSession() {
   h("seekbackward", function () { seekBy(-10000); });
 }
 initMediaSession();
-["click", "keydown"].forEach(function (ev) { window.addEventListener(ev, function () { if (st) { startKeepAudio(); } }); });
+["click", "keydown"].forEach(function (ev) { window.addEventListener(ev, function () { if (st && !st.paused) { startKeepAudio(); } }); });
 function fmt(ms) {
   var s = Math.floor(ms / 1000);
   return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
