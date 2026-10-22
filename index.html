@@ -341,6 +341,7 @@ function quitApp() {   // cierra la app por completo: detiene la música, descon
   try { if (keepAudio) { keepAudio.pause(); } } catch (e) {}
   try { if ("mediaSession" in navigator) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = "none"; } } catch (e) {}
   try { if (document.fullscreenElement) { document.exitFullscreen(); } } catch (e) {}
+  if (HOST) { hostSend({ type: "quit" }); return; }
   window.close();
   setTimeout(function () {   // si el navegador no deja cerrar (pestaña normal), deja la pantalla en negro con un aviso
     document.body.innerHTML = "<div style='position:fixed;inset:0;display:grid;place-items:center;background:#07090f;color:#fff;font:600 2.4vh Figtree,system-ui,sans-serif'>" + L.closed + "</div>";
@@ -672,7 +673,30 @@ function showState(s) {
 }
 // ---------- Windows SMTC (Media Session) ----------
 var msKey = "";
+// Puente con la app de Windows (WebView2): si existe, ella maneja SMTC de forma nativa.
+var HOST = (window.chrome && window.chrome.webview) ? window.chrome.webview : null;
+function hostSend(o) { try { HOST.postMessage(JSON.stringify(o)); } catch (e) {} }
+if (HOST) {
+  HOST.addEventListener("message", function (e) {
+    var c = String(e.data || "");
+    if (!player) { return; }
+    if (c === "play") { player.resume().catch(function () {}); }
+    else if (c === "pause") { player.pause().catch(function () {}); }
+    else if (c === "next") { next(); }
+    else if (c === "previous") { prev(); }
+    else if (c.indexOf("seek:") === 0) { player.seek(parseInt(c.slice(5), 10) || 0); }
+  });
+}
 function updateMediaSession(s, t) {
+  if (HOST) {
+    hostSend({
+      type: "state", uri: t.uri || t.id || t.name, title: t.name,
+      artist: t.artists.map(function (a) { return a.name; }).join(", "),
+      album: t.album.name || "", art: (t.album.images && t.album.images[0]) ? t.album.images[0].url : "",
+      paused: !!s.paused, position: Math.round(s.position), duration: Math.round(s.duration)
+    });
+    return;
+  }
   if (!("mediaSession" in navigator)) { return; }
   try {
     var ms = navigator.mediaSession;
@@ -690,7 +714,7 @@ function updateMediaSession(s, t) {
         artwork: arts
       });
     }
-    startKeepAudio();
+    if (s.paused) { stopKeepAudio(); } else { startKeepAudio(); }   // el estado que ve Windows sigue al audio real
     ms.playbackState = s.paused ? "paused" : "playing";
     if (ms.setPositionState && s.duration > 0) {
       ms.setPositionState({ duration: s.duration / 1000, playbackRate: 1, position: Math.min(s.position, s.duration) / 1000 });
@@ -715,6 +739,7 @@ function startKeepAudio() {
     if (keepAudio.paused) { var pr = keepAudio.play(); if (pr && pr.catch) { pr.catch(function () {}); } }
   } catch (e) {}
 }
+function stopKeepAudio() { try { if (keepAudio && !keepAudio.paused) { keepAudio.pause(); } } catch (e) {} }
 function initMediaSession() {
   if (!("mediaSession" in navigator)) { return; }
   if (/[?&]debug=0/.test(location.search)) { store.del("debug"); }
@@ -731,7 +756,7 @@ function initMediaSession() {
   h("seekbackward", function () { seekBy(-10000); });
 }
 initMediaSession();
-["click", "keydown"].forEach(function (ev) { window.addEventListener(ev, function () { if (st) { startKeepAudio(); } }); });
+["click", "keydown"].forEach(function (ev) { window.addEventListener(ev, function () { if (st && !st.paused) { startKeepAudio(); } }); });
 function fmt(ms) {
   var s = Math.floor(ms / 1000);
   return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
@@ -791,6 +816,7 @@ function seekBy(ms) {
 
 // ---------- Pantalla completa y cursor ----------
 function goFullscreen() {   // si ya corre como app instalada, no hace falta
+  if (window.chrome && window.chrome.webview) { return; }   // la app de Windows ya es pantalla completa
   if (document.fullscreenElement || matchMedia("(display-mode: fullscreen)").matches) { return; }
   try { document.documentElement.requestFullscreen().catch(function () {}); } catch (e) {}
 }
