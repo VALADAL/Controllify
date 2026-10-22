@@ -34,6 +34,18 @@ A Spotify interface designed for TVs and game controllers, including Xbox and Pl
 - **Close app** option in Settings.
 - Install it as an app on your computer.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshot-menu.jpg" alt="Menu with Browse, Current playlist, and Settings"><br><sub>Menu</sub></td>
+    <td width="50%"><img src="docs/screenshot-cover.jpg" alt="Full-screen cover art"><br><sub>Full-screen cover art</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshot-controls.jpg" alt="Compact Controls panel opened from the floating bubble"><br><sub>Compact Controls panel, opened from the floating bubble</sub></td>
+  </tr>
+</table>
+
 ## Before you start
 
 You need:
