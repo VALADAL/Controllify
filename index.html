@@ -679,6 +679,7 @@ function hostSend(o) { try { HOST.postMessage(JSON.stringify(o)); } catch (e) {}
 if (HOST) {
   HOST.addEventListener("message", function (e) {
     var c = String(e.data || "");
+    if (/[?&]debug/.test(location.search)) { toast("Media: " + c); }
     if (!player) { return; }
     if (c === "play") { player.resume().catch(function () {}); }
     else if (c === "pause") { player.pause().catch(function () {}); }
