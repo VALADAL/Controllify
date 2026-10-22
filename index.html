@@ -131,6 +131,7 @@ body.idle,body.idle *{cursor:none}
 .btn{background:#fff;color:#07090f;border:0;border-radius:99px;padding:1.6vh 4vh;font-size:2.1vh;font-weight:800;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s}
 .btn:hover,.btn:focus-visible{transform:scale(1.07);outline:0;box-shadow:0 0 0 .4vh #1ed760}
 .btn.alt{background:#1d2231;color:#fff}
+.btn.danger{background:#ff5d5d;color:#fff}
 #toast{position:fixed;left:50%;bottom:17vh;z-index:9;transform:translate(-50%,2vh);opacity:0;background:#1d2231;padding:1.6vh 3vh;border-radius:99px;font-size:1.9vh;font-weight:600;transition:all .4s var(--ease);pointer-events:none}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
@@ -192,7 +193,7 @@ var T = {
     save: "Save", badId: "That Client ID doesn't look valid",
     loginT: "Connect your account", loginP: "A Spotify window opens. Sign in and it closes by itself.", connect: "Connect Spotify", changeId: "Change Client ID",
     readyT: "All set", readyP: "Press the confirm button or Enter to start.", enter: "Start",
-    setT: "Settings", setP: "Session and app configuration.", logout: "Sign out", close: "Back",
+    setT: "Settings", setP: "Session and app configuration.", logout: "Sign out", quit: "Close app", closed: "You can close this window now", close: "Back",
     noC: "Nothing here yet", noCs: "Play something on Spotify and reopen the app.",
     playlists: "Your playlists", recent: "Recently played", artists: "Your artists",
     playlist: "Playlist", song: "Song", artist: "Artist",
@@ -313,7 +314,7 @@ function showGate(s) {
   } else if (s === "login") {
     h = "<h2>" + L.loginT + "</h2><p>" + L.loginP + "</p><button id='gbtn' class='btn' onclick='login()'>" + L.connect + "</button><button class='btn alt' onclick='resetId()'>" + L.changeId + "</button>";
   } else if (s === "settings") {
-    h = "<h2>" + L.setT + "</h2><p>" + L.setP + "</p><button id='gbtn' class='btn' onclick='closeSettings()'>" + L.close + "</button><button class='btn alt' onclick='logout()'>" + L.logout + "</button><button class='btn alt' onclick='resetId()'>" + L.changeId + "</button>";
+    h = "<h2>" + L.setT + "</h2><p>" + L.setP + "</p><button id='gbtn' class='btn' onclick='closeSettings()'>" + L.close + "</button><button class='btn alt' onclick='logout()'>" + L.logout + "</button><button class='btn alt' onclick='resetId()'>" + L.changeId + "</button><button class='btn danger' onclick='quitApp()'>" + L.quit + "</button>";
   } else {
     h = "<h2>" + L.readyT + "</h2><p>" + L.readyP + "</p><button id='gbtn' class='btn' onclick='enterApp()'>" + L.enter + "</button>";
   }
@@ -335,6 +336,16 @@ function saveId() {
 function resetId() { store.del("clientId"); clearSession(); showGate("setup"); }
 function openSettings() { if (!gateState) { showGate("settings"); } }
 function closeSettings() { gateState = ""; $("gate").classList.add("hide"); }
+function quitApp() {   // cierra la app por completo: detiene la música, desconecta el dispositivo y cierra la ventana
+  try { if (player) { player.pause(); player.disconnect(); } } catch (e) {}
+  try { if (keepAudio) { keepAudio.pause(); } } catch (e) {}
+  try { if ("mediaSession" in navigator) { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = "none"; } } catch (e) {}
+  try { if (document.fullscreenElement) { document.exitFullscreen(); } } catch (e) {}
+  window.close();
+  setTimeout(function () {   // si el navegador no deja cerrar (pestaña normal), deja la pantalla en negro con un aviso
+    document.body.innerHTML = "<div style='position:fixed;inset:0;display:grid;place-items:center;background:#07090f;color:#fff;font:600 2.4vh Figtree,system-ui,sans-serif'>" + L.closed + "</div>";
+  }, 400);
+}
 function logout() { clearSession(); location.reload(); }
 
 // ---------- Cargar contenido ----------
