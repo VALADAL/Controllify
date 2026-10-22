@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +14,16 @@
 html,body{height:100%;overflow:hidden;background:var(--bg);color:#fff;font-family:Figtree,"Segoe UI",system-ui,sans-serif}
 button{font-family:inherit}
 #rows,#list{z-index:1}
-#scrim{position:fixed;left:0;right:0;top:0;height:46vh;z-index:2;pointer-events:none;-webkit-backdrop-filter:blur(2.8vh);backdrop-filter:blur(2.8vh);-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 9vh,#000 36vh,transparent 46vh);mask-image:linear-gradient(180deg,transparent 0,#000 9vh,#000 36vh,transparent 46vh)}
+#topfade{position:fixed;left:0;right:0;top:0;height:18vh;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(7,9,15,.75),rgba(7,9,15,0))}
+#sheet{position:fixed;z-index:8;left:50%;top:50%;width:min(74vw,150vh);padding:5vh 6vh;border-radius:3vh;background:rgba(14,17,26,.7);-webkit-backdrop-filter:blur(3.4vh) saturate(1.5);backdrop-filter:blur(3.4vh) saturate(1.5);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.16),0 4vh 12vh rgba(0,0,0,.6);opacity:0;visibility:hidden;transform:translate(-50%,-46%) scale(.94);transition:opacity .35s,visibility .35s,transform .6s var(--spring)}
+body.sheet #sheet{opacity:1;visibility:visible;transform:translate(-50%,-50%)}
+#sheet h3{font-size:3.4vh;font-weight:800;margin-bottom:3.4vh}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:2.2vh 6vh}
+.kr{display:flex;align-items:center;gap:2vh;font-size:2.1vh;font-weight:600}
+.kr span{display:flex;gap:.8vh;min-width:12vh}
+#sheet b{display:inline-grid;place-items:center;min-width:3.8vh;height:3.8vh;padding:0 1vh;border-radius:2vh;background:rgba(255,255,255,.14);font-size:1.8vh}
+#bar #hints{opacity:.5;font-size:1.5vh}
+#bar #hints b{min-width:2.6vh;height:2.6vh;font-size:1.3vh}
 #hero,#top,#bar{z-index:3}
 #rows{animation:fade .6s var(--ease)}
 body.list #list{animation:in .55s var(--ease)}
@@ -31,13 +40,13 @@ body.menu .bub.f{background:#fff;color:#07090f;transform:translateY(.8vh) scale(
 @keyframes drop{from{opacity:0;transform:translateY(-16vh) scale(.5)}}
 .art.liked{background:linear-gradient(135deg,#4b2cff,#a8c8ff);display:grid;place-items:center}
 .art.liked::after{content:"♥";font-size:9vh;color:#fff}
-#list{display:none;position:fixed;left:5vw;right:5vw;top:42vh;bottom:16vh;overflow:hidden}
-body.list #list{display:block}
+#list{display:none;position:fixed;left:3.4vw;right:3.4vw;top:44vh;bottom:15vh;padding:.8vh 1.6vw 0;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 10vh),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 10vh),transparent)}
+body.list #list,body.list #lh{display:block}
 body.list #rows{display:none}
-#lh{font-size:2.4vh;font-weight:700;margin-bottom:1.6vh;opacity:.8}
-#lt{transition:transform .45s var(--ease);transform:translateY(calc(var(--lo,0) * -8.2vh))}
-.li{display:grid;grid-template-columns:4vh 6vh 1fr auto;gap:2vh;align-items:center;height:7.6vh;margin-bottom:.6vh;padding:0 2vh;border-radius:1.2vh;opacity:.7;transition:background .25s,opacity .25s,transform .25s}
-.li.f{background:rgba(255,255,255,.16);opacity:1;box-shadow:0 0 0 .35vh #fff;transform:scale(1.01)}
+#lh{display:none;position:fixed;left:5vw;top:39vh;z-index:3;font-size:2.4vh;font-weight:700;opacity:.8}
+#lt{transition:transform .6s var(--ease);transform:translateY(calc(var(--lo,0) * -8.4vh))}
+.li{display:grid;grid-template-columns:4vh 6vh 1fr auto;gap:2vh;align-items:center;height:7.8vh;margin-bottom:.6vh;padding:0 2vh;border-radius:1.6vh;opacity:.62;animation:rise .7s var(--ease) both;animation-delay:calc(var(--i) * 45ms);transition:background .3s,opacity .3s,transform .5s var(--spring),box-shadow .4s}
+.li.f{background:linear-gradient(90deg,rgba(255,255,255,.24),rgba(255,255,255,.1));opacity:1;transform:scale(1.015);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.35),0 1.6vh 5vh rgba(0,0,0,.4)}
 .ix{font-size:1.9vh;opacity:.6;text-align:right}
 .la{width:6vh;height:6vh;border-radius:.8vh;background:#1b1f2a center/cover}
 .lx{min-width:0}
@@ -56,7 +65,8 @@ body.list #rows{display:none}
 body.idle,body.idle *{cursor:none}
 
 .bg{position:fixed;inset:-6%;background-size:cover;background-position:center 30%;filter:blur(22px) saturate(1.3) brightness(.6);opacity:0;transition:opacity .9s ease}
-.bg.on{opacity:1}
+.bg.on{opacity:1;animation:drift 40s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1.02)}to{transform:scale(1.1) translate(-1.5%,1%)}}
 #shade{position:fixed;inset:0;background:linear-gradient(90deg,rgba(7,9,15,.9) 0%,rgba(7,9,15,.15) 65%),linear-gradient(0deg,#07090f 8%,rgba(7,9,15,0) 55%)}
 
 #top{position:fixed;top:4vh;left:5vw;right:5vw;display:flex;justify-content:space-between;align-items:center;font-size:2.2vh;font-weight:700}
@@ -73,8 +83,8 @@ body.idle,body.idle *{cursor:none}
 @keyframes in{from{opacity:0;transform:translateY(2.4vh)}}
 
 #rows{position:fixed;left:5vw;right:0;top:46vh;transition:transform .6s var(--ease);transform:translateY(calc(var(--r,0) * -38vh))}
-.row{height:38vh;opacity:.34;transition:opacity .6s var(--ease)}
-.row.on{opacity:1}
+.row{height:38vh;opacity:.3;filter:blur(1.1vh);transform:scale(.95);transform-origin:0 40%;transition:opacity .6s var(--ease),filter .6s var(--ease),transform .7s var(--spring)}
+.row.on{opacity:1;filter:none;transform:none}
 .lbl{font-size:2.6vh;font-weight:700;margin-bottom:2vh}
 .track{display:flex;gap:var(--gap);transition:transform .55s var(--ease);transform:translateX(calc(var(--off,0) * var(--step) * -1))}
 .tile{flex:none;width:var(--tile)}
@@ -128,7 +138,7 @@ body.idle,body.idle *{cursor:none}
 </head>
 <body>
 
-<div class="bg" id="bgA"></div><div class="bg" id="bgB"></div><div id="shade"></div><div id="scrim"></div>
+<div class="bg" id="bgA"></div><div class="bg" id="bgB"></div><div id="shade"></div><div id="topfade"></div>
 
 <div id="top">
   <div id="logo"><i><svg viewBox="0 0 24 24"><path d="M4 9c5-2 11-1.500 16 1.500M5 13c4-1.500 9-1 13 1.500M6 17c3.500-1 7-.5 10 1"/></svg></i>Spotify</div>
@@ -137,7 +147,8 @@ body.idle,body.idle *{cursor:none}
 
 <div id="hero"><div id="ht"></div><div id="hs"></div></div>
 <div id="rows"></div>
-<div id="list"><div id="lh"></div><div id="lt"></div></div>
+<div id="lh"></div>
+<div id="list"><div id="lt"></div></div>
 
 <div id="bar">
   <div id="np"><div id="npImg"></div><div><div id="npT"></div><div id="npA"></div></div></div>
@@ -154,6 +165,7 @@ body.idle,body.idle *{cursor:none}
 </div>
 
 <div id="art"><div id="aBg"></div><div id="aImg"></div><div id="aT"></div><div id="aA"></div><div id="aProg"><div id="aFill"></div></div></div>
+<div id="sheet"></div>
 <div id="dim"></div><div id="bubbles"></div>
 <div id="gate"><div id="card"></div></div>
 <div id="toast"></div>
@@ -161,23 +173,6 @@ body.idle,body.idle *{cursor:none}
 <script>
 // ---------- Textos (ES / EN) ----------
 var T = {
-  es: {
-    setupT: "Configuración inicial", setupP: "Pega tu Client ID. En el dashboard de Spotify registra este Redirect URI tal cual:",
-    badHost: "Spotify no acepta «localhost». Abre esta página con http://127.0.0.1:PUERTO/ o con HTTPS.",
-    save: "Guardar", badId: "Ese Client ID no parece válido",
-    loginT: "Conecta tu cuenta", loginP: "Se abre una ventana de Spotify. Inicia sesión y se cierra sola.", connect: "Conectar Spotify", changeId: "Cambiar Client ID",
-    readyT: "Todo listo", readyP: "Presiona el botón de confirmar o Enter para entrar.", enter: "Entrar",
-    setT: "Ajustes", setP: "Sesión y configuración de la app.", logout: "Cerrar sesión", close: "Volver",
-    noC: "Sin contenido todavía", noCs: "Reproduce algo en Spotify y vuelve a abrir la app.",
-    playlists: "Tus playlists", recent: "Reproducido recientemente", artists: "Tus artistas",
-    playlist: "Playlist", song: "Canción", artist: "Artista",
-    current: "Playlist actual", browse: "Explorar", liked: "Canciones que te gustan", songs: "canciones", loading: "Cargando canciones…", noList: "Spotify solo deja ver las canciones de tus propias playlists. Se reproduce completa", noCur: "Aún no hay una playlist sonando", noPlay: "No hay nada sonando", art: "Carátula", menu: "Menú",
-    play: "Reproducir", pause: "Pausa", track: "Pista", settings: "Ajustes", back: "Atrás", vol: "Volumen", seek: "Adelantar",
-    premium: "Para reproducir necesitas Spotify Premium", authErr: "Error de sesión. Abre Ajustes y cierra sesión",
-    expired: "Tu sesión venció. Conecta Spotify otra vez", loadErr: "No se pudo cargar parte de tu biblioteca",
-    unsupported: "Este navegador no puede reproducir audio de Spotify (falta soporte DRM)", connecting: "Conectando el reproductor…",
-    cantPlay: "No se pudo reproducir (error ", pad: "Control conectado"
-  },
   en: {
     setupT: "Initial setup", setupP: "Paste your Client ID. In the Spotify dashboard, register this Redirect URI exactly:",
     badHost: "Spotify does not accept “localhost”. Open this page with http://127.0.0.1:PORT/ or HTTPS.",
@@ -196,8 +191,12 @@ var T = {
     cantPlay: "Could not play (error ", pad: "Controller connected"
   }
 };
-var L = T[(navigator.language || "en").slice(0, 2)] || T.en;
-document.documentElement.lang = T[(navigator.language || "en").slice(0, 2)] ? (navigator.language || "en").slice(0, 2) : "en";
+var L = T.en;
+var store = {   // todas las claves llevan prefijo para no chocar con otras apps del mismo dominio
+  get: function (k) { return localStorage.getItem("ctl_" + k); },
+  set: function (k, v) { localStorage.setItem("ctl_" + k, v); },
+  del: function (k) { localStorage.removeItem("ctl_" + k); }
+};
 
 // ---------- Datos básicos ----------
 var SCOPES = "streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played user-top-read user-library-read playlist-read-private playlist-read-collaborative";
@@ -210,7 +209,7 @@ var player = null, deviceId = null, vol = 0.8;
 var st = null, posAt = 0;
 var gateState = "";   // "setup", "login", "start", "settings" o "" (app abierta)
 var bgOn = false, bgTimer = null, lastBg = "";
-var mode = "browse", zone = "main", tabIdx = 1, listItems = [], li = 0, curList = null, lastList = null, artOn = false, menuOn = false, menuIdx = 0, lastDx = 0;
+var mode = "browse", zone = "main", tabIdx = 1, listItems = [], li = 0, curList = null, lastList = null, artOn = false, menuOn = false, menuIdx = 0, lastDx = 0, sheetOn = false;
 
 function $(id) { return document.getElementById(id); }
 function cssUrl(u) { return 'url("' + encodeURI(u).replace(/"/g, "%22") + '")'; }
@@ -222,7 +221,7 @@ function toast(msg) {
   toast.timer = setTimeout(function () { t.classList.remove("show"); }, 3200);
 }
 function clearSession() {
-  ["token", "refresh", "expires"].forEach(function (k) { localStorage.removeItem(k); });
+  ["token", "refresh", "expires"].forEach(function (k) { store.del(k); });
 }
 
 // ---------- Login con Spotify (PKCE, sin secretos) ----------
@@ -239,11 +238,11 @@ async function makeChallenge(text) {
 }
 async function login() {
   var verifier = randomText(64);
-  localStorage.setItem("verifier", verifier);
-  localStorage.setItem("scopes", SCOPES);
+  store.set("verifier", verifier);
+  store.set("scopes", SCOPES);
   var url = "https://accounts.spotify.com/authorize?" + new URLSearchParams({
     response_type: "code",
-    client_id: localStorage.getItem("clientId"),
+    client_id: store.get("clientId"),
     scope: SCOPES,
     redirect_uri: REDIRECT,
     code_challenge_method: "S256",
@@ -253,9 +252,9 @@ async function login() {
   if (!win) { location.href = url; }   // ventana bloqueada: usamos la misma pestaña
 }
 function saveToken(t) {
-  localStorage.setItem("token", t.access_token);
-  if (t.refresh_token) { localStorage.setItem("refresh", t.refresh_token); }
-  localStorage.setItem("expires", Date.now() + t.expires_in * 1000 - 60000);
+  store.set("token", t.access_token);
+  if (t.refresh_token) { store.set("refresh", t.refresh_token); }
+  store.set("expires", Date.now() + t.expires_in * 1000 - 60000);
 }
 async function tokenRequest(params) {
   var res = await fetch("https://accounts.spotify.com/api/token", {
@@ -267,9 +266,9 @@ async function tokenRequest(params) {
   saveToken(await res.json());
 }
 async function getToken() {
-  if (Date.now() > Number(localStorage.getItem("expires"))) {
+  if (Date.now() > Number(store.get("expires"))) {
     try {
-      await tokenRequest({ client_id: localStorage.getItem("clientId"), grant_type: "refresh_token", refresh_token: localStorage.getItem("refresh") });
+      await tokenRequest({ client_id: store.get("clientId"), grant_type: "refresh_token", refresh_token: store.get("refresh") });
     } catch (e) {
       clearSession();
       showGate("login");
@@ -277,7 +276,7 @@ async function getToken() {
       throw e;
     }
   }
-  return localStorage.getItem("token");
+  return store.get("token");
 }
 async function api(path, method, body) {
   var res = await fetch("https://api.spotify.com" + path, {
@@ -317,10 +316,10 @@ function gateFocus(d) {   // mover el foco entre botones con cruceta / flechas
 function saveId() {
   var id = $("cid").value.trim();
   if (id.length < 10) { toast(L.badId); return; }
-  localStorage.setItem("clientId", id);
+  store.set("clientId", id);
   showGate("login");
 }
-function resetId() { localStorage.removeItem("clientId"); clearSession(); showGate("setup"); }
+function resetId() { store.del("clientId"); clearSession(); showGate("setup"); }
 function openSettings() { if (!gateState) { showGate("settings"); } }
 function closeSettings() { gateState = ""; $("gate").classList.add("hide"); }
 function logout() { clearSession(); location.reload(); }
@@ -454,6 +453,7 @@ function buildList() {
   box.innerHTML = "";
   listItems.forEach(function (t, i) {
     var row = el("li"), art = el("la"), tx = el("lx");
+    row.style.setProperty("--i", Math.min(i, 10));
     if (t.img) { art.style.backgroundImage = cssUrl(t.img); }
     tx.append(el("ln", t.name), el("ls", t.sub));
     row.append(el("ix", i + 1), art, tx, el("ld", fmt(t.dur || 0)));
@@ -558,6 +558,11 @@ function menuGo() {
   else if (i === 1) { currentPlaylist(); }
   else { openSettings(); }
 }
+function toggleSheet() {
+  sheetOn = !sheetOn;
+  document.body.classList.toggle("sheet", sheetOn);
+  if (sheetOn) { closeMenu(); }
+}
 function toggleArt() {   // carátula en pantalla completa
   if (!st && !artOn) { toast(L.noPlay); return; }
   artOn = !artOn;
@@ -583,18 +588,21 @@ function back() {   // B (Xbox) / ○ (PlayStation)
 
 // Etiquetas de botones según el tipo de control
 var KINDS = {
-  xbox: { a: ["A", "#5fd46a"], b: ["B", "#ff6b6b"], x: ["X", "#6bb0ff"], y: ["Y", "#ffd24d"], l: "LB", r: "RB", m: "☰" },
-  ps:   { a: ["✕", "#7d9bff"], b: ["○", "#ff7d8a"], x: ["□", "#f08ad0"], y: ["△", "#5fd4a0"], l: "L1", r: "R1", m: "OPT" }
+  xbox: { a: ["A", "#5fd46a"], b: ["B", "#ff6b6b"], x: ["X", "#6bb0ff"], y: ["Y", "#ffd24d"], l: "LB", r: "RB", m: "☰", v: "⧉" },
+  ps:   { a: ["✕", "#7d9bff"], b: ["○", "#ff7d8a"], x: ["□", "#f08ad0"], y: ["△", "#5fd4a0"], l: "L1", r: "R1", m: "OPT", v: "CREATE" }
 };
 var kind = "";
 function setKind(k) {
   if (k === kind) { return; }
   kind = k;
   var m = KINDS[k];
-  function h(btn, txt) { return "<span><b style='color:" + btn[1] + "'>" + btn[0] + "</b>" + txt + "</span>"; }
-  $("hints").innerHTML = h(m.a, L.play) + h(m.b, L.back) + h(m.x, L.pause) +
-    "<span><b>" + m.l + "</b><b>" + m.r + "</b>" + L.track + "</span>" + h(m.y, L.menu) +
-    "<span><b>R↕</b>" + L.vol + "</span><span><b>R↔</b>" + L.seek + "</span><span><b>" + m.m + "</b>" + L.art + "</span>";
+  function key(t, c) { return "<b" + (c ? " style='color:" + c + "'" : "") + ">" + t + "</b>"; }
+  function row(keys, text) { return "<div class='kr'><span>" + keys + "</span>" + text + "</div>"; }
+  $("hints").innerHTML = "<span>" + key(m.v) + "Controls</span>";
+  $("sheet").innerHTML = "<h3>Controls</h3><div class='kg'>" +
+    row(key("D-pad"), "Move") + row(key(m.a[0], m.a[1]), "Play / open") + row(key(m.b[0], m.b[1]), "Back") +
+    row(key(m.x[0], m.x[1]), "Pause / resume") + row(key(m.l) + key(m.r), "Previous / next") + row(key(m.y[0], m.y[1]), "Menu") +
+    row(key("R↕"), "Volume") + row(key("R↔"), "Seek 10 s") + row(key(m.m), "Cover art") + row(key(m.v), "This sheet") + "</div>";
 }
 setKind("xbox");
 
@@ -733,6 +741,8 @@ document.addEventListener("keydown", function (e) {
     else if (k === "ArrowUp") { e.preventDefault(); gateFocus(-1); }
     return;
   }
+  if (sheetOn) { if (k === "Escape" || k === "Enter" || k === "Backspace" || k === "h" || k === "H" || k === "?") { toggleSheet(); } return; }
+  if (k === "h" || k === "H" || k === "?") { toggleSheet(); return; }
   if (menuOn) {
     if (k === "ArrowLeft") { menuMove(-1); }
     else if (k === "ArrowRight") { menuMove(1); }
@@ -792,11 +802,14 @@ function readPad() {
       if (edge[1] && gateState === "settings") { closeSettings(); }
       if (dy && now - lastMove > 200) { gateFocus(dy); lastMove = now; }
     } else {
-      if (menuOn) {
+      if (sheetOn) {
+        if (edge[0] || edge[1] || edge[8]) { toggleSheet(); }
+      } else if (menuOn) {
         if (edge[0]) { menuGo(); }
         if (edge[1] || edge[3]) { closeMenu(); }
         if (dx && dx !== lastDx) { menuMove(dx); }
       } else {
+        if (edge[8]) { toggleSheet(); }   // View / Create
         if (edge[9]) { toggleArt(); }   // Menú / Options
         if (edge[0]) { if (artOn) { togglePlay(); } else { select(); } }
         if (edge[1]) { if (artOn) { toggleArt(); } else { back(); } }
@@ -806,7 +819,7 @@ function readPad() {
         if (edge[5]) { next(); }
       }
       lastDx = dx;
-      if ((dx || dy) && !artOn && !menuOn) {
+      if ((dx || dy) && !artOn && !menuOn && !sheetOn) {
         if (now - lastMove > 170) { move(dx, dy); lastMove = now; }   // mantener presionado repite
       } else { lastMove = 0; }
       var sx = p.axes[2] || 0, sy = p.axes[3] || 0;   // stick derecho: volumen y adelantar
@@ -822,20 +835,20 @@ readPad();
 
 // ---------- Arranque ----------
 window.addEventListener("storage", function (e) {   // la ventana de login avisa por aquí cuando termina
-  if (e.key === "token" && e.newValue && gateState === "login") { showGate("start"); }
+  if (e.key === "ctl_token" && e.newValue && gateState === "login") { showGate("start"); }
 });
 async function init() {
   var code = new URLSearchParams(location.search).get("code");
   if (code) {
     try {
-      await tokenRequest({ client_id: localStorage.getItem("clientId"), grant_type: "authorization_code", code: code, redirect_uri: REDIRECT, code_verifier: localStorage.getItem("verifier") });
+      await tokenRequest({ client_id: store.get("clientId"), grant_type: "authorization_code", code: code, redirect_uri: REDIRECT, code_verifier: store.get("verifier") });
     } catch (e) {}
     if (window.opener) { window.close(); return; }
     history.replaceState(null, "", REDIRECT);
   }
-  if (localStorage.getItem("token") && localStorage.getItem("scopes") !== SCOPES) { clearSession(); }   // permisos nuevos: pide iniciar sesión otra vez
-  if (!localStorage.getItem("clientId")) { showGate("setup"); }
-  else if (!localStorage.getItem("token")) { showGate("login"); }
+  if (store.get("token") && store.get("scopes") !== SCOPES) { clearSession(); }   // permisos nuevos: pide iniciar sesión otra vez
+  if (!store.get("clientId")) { showGate("setup"); }
+  else if (!store.get("token")) { showGate("login"); }
   else { showGate("start"); }
 }
 buildMenu();
