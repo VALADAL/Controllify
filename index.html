@@ -717,9 +717,13 @@ function startKeepAudio() {
 }
 function initMediaSession() {
   if (!("mediaSession" in navigator)) { return; }
-  function h(name, fn) { try { navigator.mediaSession.setActionHandler(name, fn); } catch (e) {} }
-  h("play", function () { if (player) { player.resume(); } });
-  h("pause", function () { if (player) { player.pause(); } });
+  if (/[?&]debug=0/.test(location.search)) { store.del("debug"); }
+  else if (/[?&]debug/.test(location.search)) { store.set("debug", "1"); }
+  function dbg(t) { if (store.get("debug")) { toast("Media: " + t); } }   // con ?debug muestra qué botón de media llega a la página
+  function h(name, fn) { try { navigator.mediaSession.setActionHandler(name, function (d) { dbg(name); fn(d); }); } catch (e) {} }
+  function viaApi(path) { return api(path, "PUT").catch(function () {}); }
+  h("play", function () { if (!player) { return; } player.resume().catch(function () { viaApi("/v1/me/player/play"); }); });
+  h("pause", function () { if (!player) { return; } player.pause().catch(function () { viaApi("/v1/me/player/pause"); }); });
   h("previoustrack", function () { prev(); });
   h("nexttrack", function () { next(); });
   h("seekto", function (d) { if (player && d && d.seekTime != null) { player.seek(Math.round(d.seekTime * 1000)); } });
