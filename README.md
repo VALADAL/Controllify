@@ -42,8 +42,10 @@ Si cambias de puerto o de dirección, el navegador la trata como otra app: inst�
 | Atrás | B | ○ | Backspace |
 | Pausa / reanudar | X | □ | Espacio |
 | Pista anterior / siguiente | LB / RB | L1 / R1 | P / N |
-| Ajustes | Y | △ | Esc |
 | Pantalla completa | — | — | F / F11 |
+| Ver canciones de una playlist | A | ✕ | Enter |
+| Menú de burbujas (Explorar / Playlist actual / Ajustes) | Y, luego ←→ y A | △, luego ←→ y ✕ | M o Esc |
+| Carátula en pantalla completa | Menú ☰ | OPTIONS | V |
 | Volumen | Stick der. ↑↓ | Stick der. ↑↓ | + / − |
 | Adelantar / retroceder 10 s | Stick der. ←→ | Stick der. ←→ | . / , |
 
