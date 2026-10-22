@@ -657,7 +657,46 @@ function showState(s) {
   $("aBg").style.backgroundImage = big;
   $("aT").textContent = t.name;
   $("aA").textContent = $("npA").textContent;
+  updateMediaSession(s, t);
 }
+// ---------- Windows SMTC (Media Session) ----------
+var msKey = "";
+function updateMediaSession(s, t) {
+  if (!("mediaSession" in navigator)) { return; }
+  try {
+    var ms = navigator.mediaSession;
+    var key = t.uri || t.id || t.name;
+    if (key !== msKey && typeof MediaMetadata !== "undefined") {
+      msKey = key;
+      var arts = (t.album.images || []).map(function (im) {
+        var z = (im.width || 640) + "x" + (im.height || im.width || 640);
+        return { src: im.url, sizes: z, type: "image/jpeg" };
+      });
+      ms.metadata = new MediaMetadata({
+        title: t.name,
+        artist: t.artists.map(function (a) { return a.name; }).join(", "),
+        album: t.album.name || "",
+        artwork: arts
+      });
+    }
+    ms.playbackState = s.paused ? "paused" : "playing";
+    if (ms.setPositionState && s.duration > 0) {
+      ms.setPositionState({ duration: s.duration / 1000, playbackRate: 1, position: Math.min(s.position, s.duration) / 1000 });
+    }
+  } catch (e) {}
+}
+function initMediaSession() {
+  if (!("mediaSession" in navigator)) { return; }
+  function h(name, fn) { try { navigator.mediaSession.setActionHandler(name, fn); } catch (e) {} }
+  h("play", function () { if (player) { player.resume(); } });
+  h("pause", function () { if (player) { player.pause(); } });
+  h("previoustrack", function () { prev(); });
+  h("nexttrack", function () { next(); });
+  h("seekto", function (d) { if (player && d && d.seekTime != null) { player.seek(Math.round(d.seekTime * 1000)); } });
+  h("seekforward", function () { seekBy(10000); });
+  h("seekbackward", function () { seekBy(-10000); });
+}
+initMediaSession();
 function fmt(ms) {
   var s = Math.floor(ms / 1000);
   return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
