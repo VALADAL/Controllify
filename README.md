@@ -1,63 +1,102 @@
-# Spotify Console UI
+# Controllify
 
-Interfaz de Spotify estilo consola, pensada para TV y control (Xbox, PlayStation y cualquier gamepad con mapeo estándar). Un solo archivo HTML, sin dependencias ni backend. · *Console-style Spotify interface for TV and gamepads. Single HTML file, no backend.* (UI in ES/EN)
+A Spotify interface designed for TVs and game controllers, including Xbox and PlayStation. You can also use it with a keyboard.
 
-> Proyecto no oficial. No está afiliado a Spotify AB. Spotify es marca de Spotify AB.
+**Open Controllify here:** https://valadal.github.io/Controllify/
 
-## Requisitos
-- **Spotify Premium** (lo exige el Web Playback SDK).
-- Navegador con soporte de DRM (Widevine): Chrome, Edge o Firefox en Windows, macOS o Linux.
-- Una app creada en el [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). Revisa ahí los requisitos vigentes para apps en modo desarrollo.
+> Unofficial project. Not affiliated with Spotify AB. Spotify is a trademark of Spotify AB.
 
-## Uso
-1. Sirve la carpeta con cualquier servidor local, por ejemplo:
-   ```bash
-   python -m http.server 8888
-   ```
-2. Abre **`http://127.0.0.1:8888/`** (no `localhost`: Spotify no lo acepta como Redirect URI; `file://` tampoco funciona).
-3. En el dashboard de Spotify, agrega ese mismo valor (`http://127.0.0.1:8888/`) en **Redirect URIs**.
-4. Pega tu **Client ID** en la pantalla de configuración y conecta tu cuenta.
+## Features
 
-### Usarlo desde GitHub Pages (sin servidor local)
-1. Sube el proyecto a un repositorio y activa **Settings → Pages** (rama `main`, carpeta raíz).
-2. Tu dirección será `https://TU-USUARIO.github.io/NOMBRE-REPO/`. Esa misma dirección, con la barra final, es el Redirect URI que debes registrar en tu app de Spotify.
-3. Cada persona usa **su propio Client ID**: se pega en la pantalla de configuración y se guarda solo en su navegador. El repositorio nunca contiene credenciales.
+- Browse your playlists, Liked Songs, recently played tracks, and top artists.
+- Open playlists and view their tracks.
+- Control the app with a game controller or keyboard.
+- Navigate using the menu and view cover art in full screen.
+- Install it as an app on your computer.
 
-## Instalar como app (pantalla completa, sin barras del navegador)
-1. Abre la página en Chrome o Edge (con el servidor local o desde HTTPS).
-2. Menú ⋮ → **Transmitir, guardar y compartir → Instalar página como app** (en Edge: ⋯ → **Aplicaciones → Instalar este sitio como una aplicación**).
-3. Ábrela desde el ícono nuevo del escritorio o del menú Inicio. Se abre en su propia ventana.
-4. Al presionar **Entrar** la app pide pantalla completa sola. Si no lo hace, usa `F11` o la tecla `F`.
+## Before you start
 
-Para que arranque siempre en pantalla completa, edita las propiedades del acceso directo de la app y agrega al final del destino: `--start-fullscreen`.
+You need:
 
-Si cambias de puerto o de dirección, el navegador la trata como otra app: instálala de nuevo y actualiza el Redirect URI.
+- **Spotify Premium** to play music through the web player.
+- A compatible browser, such as Chrome or Edge.
+- Your own **Spotify Client ID**. Creating an app in the Spotify Developer Dashboard is free.
 
-## Controles
+## First-time setup
 
-| Acción | Xbox | PlayStation | Teclado |
+Each person must connect their own Spotify account and use their own Client ID. You do not need to install anything or run the page on your computer.
+
+### 1. Create a Spotify app
+
+1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/).
+2. Create a new app.
+3. If prompted to choose products or APIs, enable **Web API** and **Web Playback SDK**.
+4. Open your app's settings.
+
+### 2. Set the Redirect URI
+
+In your Spotify app settings, find **Redirect URIs** and add this exact address:
+
+`https://valadal.github.io/Controllify/`
+
+Save your changes. The address must match exactly, including the final `/`.
+
+### 3. Copy your Client ID
+
+1. In the Spotify dashboard, copy your app's **Client ID**.
+2. Do not copy or share your **Client Secret**.
+3. Open [Controllify](https://valadal.github.io/Controllify/).
+4. Paste your Client ID into the setup screen.
+5. Follow the instructions to connect your Spotify account and authorize access.
+
+**That's it!** After the initial setup, open the same page whenever you want to use Controllify. Your Client ID and access tokens are stored in your browser, not in this repository.
+
+## Install Controllify as an app
+
+If you'd rather open it like an app instead of a browser tab:
+
+1. Open [Controllify](https://valadal.github.io/Controllify/) in Chrome or Edge.
+2. Open the browser menu.
+3. Look for **Install page as app** or **Install this site as an app**.
+4. Once installed, launch Controllify from its new icon.
+
+To enter full-screen mode, press `F` or `F11`. You can also press **Start** inside the app.
+
+## Controls
+
+Press **View** or the `H` key inside the app to see the controls on screen.
+
+| Action | Xbox | PlayStation | Keyboard |
 |---|---|---|---|
-| Moverse | Cruceta / stick izq. | Cruceta / stick izq. | Flechas |
-| Reproducir | A | ✕ | Enter |
-| Atrás | B | ○ | Backspace |
-| Pausa / reanudar | X | □ | Espacio |
-| Pista anterior / siguiente | LB / RB | L1 / R1 | P / N |
-| Pantalla completa | — | — | F / F11 |
-| Ver canciones de una playlist | A | ✕ | Enter |
-| Menú de burbujas (Explorar / Playlist actual / Ajustes) | Y, luego ←→ y A | △, luego ←→ y ✕ | M o Esc |
-| Carátula en pantalla completa | Menú ☰ | OPTIONS | V |
-| Volumen | Stick der. ↑↓ | Stick der. ↑↓ | + / − |
-| Adelantar / retroceder 10 s | Stick der. ←→ | Stick der. ←→ | . / , |
+| Move | D-pad / left stick | D-pad / left stick | Arrow keys |
+| Play / open | A | ✕ | Enter |
+| Back | B | ○ | Backspace |
+| Pause / resume | X | □ | Space |
+| Previous / next track | LB / RB | L1 / R1 | P / N |
+| Open menu | Y | △ | M or Esc |
+| Volume | Right stick ↑↓ | Right stick ↑↓ | + / − |
+| Seek 10 seconds | Right stick ←→ | Right stick ←→ | , / . |
+| View cover art | Menu ☰ | OPTIONS | V |
+| Show controls | View | CREATE | H or ? |
+| Full screen | — | — | F / F11 |
 
-Las etiquetas de la barra inferior cambian solas según el control detectado. Con el navegador, presiona un botón del control una vez para que lo detecte.
+## Compatibility
 
-## Compatibilidad
-- **Windows + Chrome/Edge + control Xbox (USB, Bluetooth o adaptador):** soporte completo.
-- **PlayStation (DualSense/DualShock):** funciona en un navegador de PC/Mac conectado al control. La PS5 no ofrece un navegador web propio.
-- **Navegador de consola Xbox (Edge):** la interfaz y el control deberían funcionar, pero la reproducción depende de que el DRM esté disponible; no está verificado.
+- **Windows with Chrome or Edge and an Xbox controller:** full support.
+- **PlayStation controllers:** work in desktop browsers.
+- **Xbox console browser:** the interface and controller may work, but playback depends on browser compatibility.
 
-## Privacidad
-Usa Authorization Code con PKCE: no hay secretos ni servidor. Tu Client ID y tokens se guardan solo en el `localStorage` de tu navegador. Puedes cerrar sesión desde Ajustes.
+## Known limitations
 
-## Licencia
-MIT, ver [LICENSE](LICENSE).
+- Spotify only allows the app to list tracks from playlists you own or collaborate on. For some other playlists, the app may play music without displaying the track list.
+- The app loads up to the first 100 tracks of a playlist and the first 50 Liked Songs.
+
+## Privacy
+
+Controllify uses **Authorization Code with PKCE**, so it does not need a server or a Client Secret. Your Client ID and access tokens are stored only in your browser's local storage (`localStorage`).
+
+To disconnect your account, open **Settings** in Controllify and sign out.
+
+## License
+
+MIT License. See the [LICENSE](LICENSE) file.
