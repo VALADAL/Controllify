@@ -696,7 +696,8 @@ function updateMediaSession(s, t) {
       album: t.album.name || "", art: (t.album.images && t.album.images[0]) ? t.album.images[0].url : "",
       paused: !!s.paused, position: Math.round(s.position), duration: Math.round(s.duration)
     });
-    return;
+    // sin "return": el navegador embebido también crea su propia sesión de medios y Windows puede elegir
+    // esa; así las dos sesiones tienen los mismos datos y los mismos botones.
   }
   if (!("mediaSession" in navigator)) { return; }
   try {
