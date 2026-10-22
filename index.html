@@ -136,11 +136,11 @@ body.idle,body.idle *{cursor:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
 
 /* ===== Controls: burbuja flotante + panel chiquito abajo a la derecha ===== */
-#bar #hints{position:fixed;right:3vw;bottom:17vh;z-index:9;display:flex;align-items:center;justify-content:center;gap:0;padding:1.1vh 1.8vh;border-radius:5vh;opacity:1;font-size:1.5vh;font-weight:700;cursor:pointer;background:rgba(14,17,26,.62);-webkit-backdrop-filter:blur(2.4vh) saturate(1.5);backdrop-filter:blur(2.4vh) saturate(1.5);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.18),0 1.6vh 4vh rgba(0,0,0,.5);animation:ctlFloat 4.5s ease-in-out infinite;transition:background .3s,box-shadow .3s}
+#bar #hints{position:fixed;right:5vw;bottom:3.2vh;z-index:9;display:flex;align-items:center;justify-content:center;gap:0;padding:1.1vh 1.8vh;border-radius:5vh;opacity:1;font-size:1.5vh;font-weight:700;cursor:pointer;background:rgba(14,17,26,.62);-webkit-backdrop-filter:blur(2.4vh) saturate(1.5);backdrop-filter:blur(2.4vh) saturate(1.5);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.18),0 1.6vh 4vh rgba(0,0,0,.5);animation:ctlFloat 4.5s ease-in-out infinite;transition:background .3s,box-shadow .3s}
 #bar #hints:hover,body.sheet #bar #hints{background:rgba(40,46,62,.8)}
 #bar #hints b{min-width:2.6vh;height:2.6vh;font-size:1.3vh}
 @keyframes ctlFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-.9vh)}}
-#sheet{left:auto;top:auto;right:3vw;bottom:24vh;width:min(40vw,50vh);padding:2.6vh 2.8vh;border-radius:2.4vh;transform-origin:100% 100%;transform:translateY(1.6vh) scale(.82);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.16),0 2vh 6vh rgba(0,0,0,.55)}
+#sheet{left:auto;top:auto;right:5vw;bottom:11vh;width:min(40vw,50vh);padding:2.6vh 2.8vh;border-radius:2.4vh;transform-origin:100% 100%;transform:translateY(1.6vh) scale(.82);box-shadow:inset 0 0 0 .2vh rgba(255,255,255,.16),0 2vh 6vh rgba(0,0,0,.55)}
 body.sheet #sheet{transform:none}
 #sheet h3{font-size:2.4vh;margin-bottom:2vh}
 #sheet .kg{grid-template-columns:1fr;gap:1.3vh}
@@ -611,11 +611,11 @@ function setKind(k) {
   var m = KINDS[k];
   function key(t, c) { return "<b" + (c ? " style='color:" + c + "'" : "") + ">" + t + "</b>"; }
   function row(keys, text) { return "<div class='kr'><span>" + keys + "</span>" + text + "</div>"; }
-  $("hints").innerHTML = "<span>" + key(m.v) + "Controls</span>";
+  $("hints").innerHTML = "<span>" + key(m.m) + "Controls</span>";
   $("sheet").innerHTML = "<h3>Controls</h3><div class='kg'>" +
     row(key("D-pad"), "Move") + row(key(m.a[0], m.a[1]), "Play / open") + row(key(m.b[0], m.b[1]), "Back") +
     row(key(m.x[0], m.x[1]), "Pause / resume") + row(key(m.l) + key(m.r), "Previous / next") + row(key(m.y[0], m.y[1]), "Menu") +
-    row(key("R↕"), "Volume") + row(key("R↔"), "Seek 10 s") + row(key(m.m), "Cover art") + row(key(m.v), "This sheet") + "</div>";
+    row(key("R↕"), "Volume") + row(key("R↔"), "Seek 10 s") + row(key(m.v), "Cover art") + row(key(m.m), "This sheet") + "</div>";
 }
 setKind("xbox");
 
@@ -816,14 +816,14 @@ function readPad() {
       if (dy && now - lastMove > 200) { gateFocus(dy); lastMove = now; }
     } else {
       if (sheetOn) {
-        if (edge[0] || edge[1] || edge[8]) { toggleSheet(); }
+        if (edge[0] || edge[1] || edge[9]) { toggleSheet(); }
       } else if (menuOn) {
         if (edge[0]) { menuGo(); }
         if (edge[1] || edge[3]) { closeMenu(); }
         if (dx && dx !== lastDx) { menuMove(dx); }
       } else {
-        if (edge[8]) { toggleSheet(); }   // View / Create
-        if (edge[9]) { toggleArt(); }   // Menú / Options
+        if (edge[8]) { toggleArt(); }   // View / Create: cover art
+        if (edge[9]) { toggleSheet(); }   // Menú / Options: controls
         if (edge[0]) { if (artOn) { togglePlay(); } else { select(); } }
         if (edge[1]) { if (artOn) { toggleArt(); } else { back(); } }
         if (edge[2]) { togglePlay(); }
