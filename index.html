@@ -679,10 +679,29 @@ function updateMediaSession(s, t) {
         artwork: arts
       });
     }
+    startKeepAudio();
     ms.playbackState = s.paused ? "paused" : "playing";
     if (ms.setPositionState && s.duration > 0) {
       ms.setPositionState({ duration: s.duration / 1000, playbackRate: 1, position: Math.min(s.position, s.duration) / 1000 });
     }
+  } catch (e) {}
+}
+// El SDK de Spotify reproduce dentro de un iframe y Chrome le cede SMTC a ese iframe (sin carátula).
+// Un audio silencioso propio en la página principal hace que Chrome use NUESTROS metadatos.
+var keepAudio = null;
+function startKeepAudio() {
+  try {
+    if (!keepAudio) {
+      var n = 8000, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+      function w(o, t) { for (var i = 0; i < t.length; i++) { v.setUint8(o + i, t.charCodeAt(i)); } }
+      w(0, "RIFF"); v.setUint32(4, 36 + n, true); w(8, "WAVEfmt "); v.setUint32(16, 16, true);
+      v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true);
+      v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, "data"); v.setUint32(40, n, true);
+      for (var j = 0; j < n; j++) { v.setUint8(44 + j, 128); }   // silencio (8 bits sin signo)
+      keepAudio = new Audio(URL.createObjectURL(new Blob([buf], { type: "audio/wav" })));
+      keepAudio.loop = true;
+    }
+    if (keepAudio.paused) { var pr = keepAudio.play(); if (pr && pr.catch) { pr.catch(function () {}); } }
   } catch (e) {}
 }
 function initMediaSession() {
@@ -697,6 +716,7 @@ function initMediaSession() {
   h("seekbackward", function () { seekBy(-10000); });
 }
 initMediaSession();
+["click", "keydown"].forEach(function (ev) { window.addEventListener(ev, function () { if (st) { startKeepAudio(); } }); });
 function fmt(ms) {
   var s = Math.floor(ms / 1000);
   return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
@@ -835,9 +855,21 @@ function padKind(p) {
   var id = (p.id || "").toLowerCase();
   return /054c|dualsense|dualshock|playstation|wireless controller/.test(id) ? "ps" : "xbox";
 }
+var padLock = false, wasGuide = false;
+window.addEventListener("focus", function () { padLock = false; });   // al volver a la ventana se reactivan
 function readPad() {
   var p = getPad(), now = Date.now();
-  if (p) {
+  var active = document.hasFocus() && !document.hidden && !padLock;
+  if (p) {   // botón Guide/Home: pausa o reanuda los controles (por si el menú del theme no le quita el foco a la ventana)
+    var g = !!(p.buttons[16] && p.buttons[16].pressed);
+    if (g && !wasGuide) { padLock = !padLock; active = document.hasFocus() && !document.hidden && !padLock; }
+    wasGuide = g;
+    if (!active) {   // sin foco o en pausa: ignora todo y sincroniza el estado para no disparar acciones al volver
+      for (var k = 0; k < 10; k++) { was[k] = !!(p.buttons[k] && p.buttons[k].pressed); }
+      lastMove = 0; lastDx = 0;
+    }
+  }
+  if (p && active) {
     setKind(padKind(p));
     var edge = {};
     for (var b = 0; b < 10; b++) {   // 0=A/✕ 1=B/○ 2=X/□ 3=Y/△ 4=LB/L1 5=RB/R1
