@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spotify Console UI</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#07090f">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--tile:21vh;--gap:2vh;--step:calc(var(--tile) + var(--gap));--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:#fff;font-family:Figtree,"Segoe UI",system-ui,sans-serif}
+button{font-family:inherit}
+body.idle,body.idle *{cursor:none}
+
+.bg{position:fixed;inset:-6%;background-size:cover;background-position:center 30%;filter:blur(22px) saturate(1.3) brightness(.6);opacity:0;transition:opacity .9s ease}
+.bg.on{opacity:1}
+#shade{position:fixed;inset:0;background:linear-gradient(90deg,rgba(7,9,15,.9) 0%,rgba(7,9,15,.15) 65%),linear-gradient(0deg,#07090f 8%,rgba(7,9,15,0) 55%)}
+
+#top{position:fixed;top:4vh;left:5vw;right:5vw;display:flex;justify-content:space-between;align-items:center;font-size:2.2vh;font-weight:700}
+#logo{display:flex;align-items:center;gap:1.2vh}
+#logo i{width:4.4vh;height:4.4vh;border-radius:50%;background:#1ed760;display:grid;place-items:center}
+#logo svg{width:2.6vh;fill:none;stroke:#07090f;stroke-width:2.4;stroke-linecap:round}
+#user{display:flex;align-items:center;gap:1.4vh;opacity:.9}
+#avatar{width:4.6vh;height:4.6vh;border-radius:50%;background:#2a3040 center/cover}
+
+#hero{position:fixed;left:5vw;top:19vh;max-width:62vw}
+#ht{font-size:9vh;font-weight:800;letter-spacing:-.025em;line-height:1.02;text-shadow:0 .4vh 3vh rgba(0,0,0,.45)}
+#hs{margin-top:1.6vh;font-size:2.4vh;font-weight:600;opacity:.8}
+.anim{animation:in .55s var(--ease)}
+@keyframes in{from{opacity:0;transform:translateY(2.4vh)}}
+
+#rows{position:fixed;left:5vw;right:0;top:46vh;transition:transform .6s var(--ease);transform:translateY(calc(var(--r,0) * -38vh))}
+.row{height:38vh;opacity:.4;transition:opacity .45s}
+.row.on{opacity:1}
+.lbl{font-size:2.6vh;font-weight:700;margin-bottom:2vh}
+.track{display:flex;gap:var(--gap);transition:transform .55s var(--ease);transform:translateX(calc(var(--off,0) * var(--step) * -1))}
+.tile{flex:none;width:var(--tile)}
+.art{width:var(--tile);height:var(--tile);border-radius:1.2vh;background:#1b1f2a center/cover;transition:transform .35s var(--ease),box-shadow .35s}
+.round .art{border-radius:50%}
+.tile.f .art{transform:scale(1.09);box-shadow:0 0 0 .45vh #fff,0 3vh 7vh rgba(0,0,0,.65)}
+.tile.hit .art{animation:hit .35s var(--ease)}
+@keyframes hit{50%{transform:scale(1.02)}}
+.nm{margin-top:1.6vh;font-size:2vh;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .35s var(--ease)}
+.sb{margin-top:.4vh;font-size:1.7vh;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .35s var(--ease)}
+.tile.f .nm,.tile.f .sb{transform:translateY(1.2vh)}
+.intro .tile{animation:rise .9s var(--ease) both;animation-delay:calc(var(--i) * 70ms)}
+@keyframes rise{from{opacity:0;transform:translateY(6vh)}}
+
+#bar{position:fixed;left:0;right:0;bottom:0;height:15vh;padding:3vh 5vw 0;display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:center;gap:3vw;background:linear-gradient(0deg,rgba(7,9,15,.98) 55%,transparent)}
+#np,#ctl{opacity:0;transform:translateY(3vh);transition:all .6s var(--ease)}
+#bar.playing #np,#bar.playing #ctl{opacity:1;transform:none}
+#np{display:flex;align-items:center;gap:2vh;min-width:0}
+#npImg{flex:none;width:8vh;height:8vh;border-radius:1vh;background:#1b1f2a center/cover}
+#npT{font-size:2.2vh;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#npA{font-size:1.8vh;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#np div{min-width:0}
+#btns{display:flex;justify-content:center;align-items:center;gap:3vh}
+#btns button{background:none;border:0;color:#fff;cursor:pointer;transition:transform .2s var(--ease)}
+#btns button:hover,#btns button:focus-visible{transform:scale(1.15);outline:0}
+#btns svg{width:3.4vh;fill:currentColor;display:block}
+#btns #pp{width:6vh;height:6vh;border-radius:50%;background:#fff;color:#07090f;display:grid;place-items:center}
+#btns #pp svg{width:3vh}
+#prog{margin-top:1.4vh;height:.6vh;border-radius:1vh;background:rgba(255,255,255,.2);overflow:hidden}
+#fill{height:100%;width:0;background:#fff}
+#times{display:flex;justify-content:space-between;margin-top:.8vh;font-size:1.5vh;opacity:.6}
+#hints{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:1vh 2.4vh;font-size:1.7vh;font-weight:600;opacity:.85;white-space:nowrap}
+#hints b{display:inline-grid;place-items:center;min-width:3vh;height:3vh;padding:0 .5vh;border-radius:1.5vh;background:rgba(255,255,255,.14);margin-right:.7vh;font-size:1.6vh}
+
+#gate{position:fixed;inset:0;z-index:5;display:grid;place-items:center;background:rgba(7,9,15,.94);backdrop-filter:blur(24px);transition:opacity .6s,visibility .6s}
+#gate.hide{opacity:0;visibility:hidden}
+#card{width:min(560px,90vw);text-align:center;animation:in .7s var(--ease)}
+#card h2{font-size:4.6vh;font-weight:800;letter-spacing:-.02em;margin-bottom:1.6vh}
+#card p{font-size:2vh;opacity:.75;line-height:1.5;margin-bottom:2vh}
+#card code{display:block;background:#141824;padding:1.4vh;border-radius:1vh;font-size:1.9vh;margin-bottom:2vh;user-select:all;word-break:break-all}
+#card input{width:100%;padding:1.6vh 2vh;border-radius:1vh;border:2px solid #2a3040;background:#0f1320;color:#fff;font:600 2vh Figtree,sans-serif;margin-bottom:2.4vh}
+#card input:focus{outline:0;border-color:#fff}
+#card .btn{display:block;margin:1.4vh auto 0}
+.btn{background:#fff;color:#07090f;border:0;border-radius:99px;padding:1.6vh 4vh;font-size:2.1vh;font-weight:800;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s}
+.btn:hover,.btn:focus-visible{transform:scale(1.07);outline:0;box-shadow:0 0 0 .4vh #1ed760}
+.btn.alt{background:#1d2231;color:#fff}
+#toast{position:fixed;left:50%;bottom:17vh;z-index:9;transform:translate(-50%,2vh);opacity:0;background:#1d2231;padding:1.6vh 3vh;border-radius:99px;font-size:1.9vh;font-weight:600;transition:all .4s var(--ease);pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style>
+</head>
+<body>
+
+<div class="bg" id="bgA"></div><div class="bg" id="bgB"></div><div id="shade"></div>
+
+<div id="top">
+  <div id="logo"><i><svg viewBox="0 0 24 24"><path d="M4 9c5-2 11-1.500 16 1.500M5 13c4-1.500 9-1 13 1.500M6 17c3.500-1 7-.5 10 1"/></svg></i>Spotify</div>
+  <div id="user"><span id="who"></span><div id="avatar"></div></div>
+</div>
+
+<div id="hero"><div id="ht"></div><div id="hs"></div></div>
+<div id="rows"></div>
+
+<div id="bar">
+  <div id="np"><div id="npImg"></div><div><div id="npT"></div><div id="npA"></div></div></div>
+  <div id="ctl">
+    <div id="btns">
+      <button onclick="prev()" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button id="pp" onclick="togglePlay()" aria-label="Play/Pause"></button>
+      <button onclick="next()" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    </div>
+    <div id="prog"><div id="fill"></div></div>
+    <div id="times"><span id="t1">0:00</span><span id="t2">0:00</span></div>
+  </div>
+  <div id="hints"></div>
+</div>
+
+<div id="gate"><div id="card"></div></div>
+<div id="toast"></div>
+
+<script>
+// ---------- Textos (ES / EN) ----------
+var T = {
+  es: {
+    setupT: "Configuración inicial", setupP: "Pega tu Client ID. En el dashboard de Spotify registra este Redirect URI tal cual:",
+    badHost: "Spotify no acepta «localhost». Abre esta página con http://127.0.0.1:PUERTO/ o con HTTPS.",
+    save: "Guardar", badId: "Ese Client ID no parece válido",
+    loginT: "Conecta tu cuenta", loginP: "Se abre una ventana de Spotify. Inicia sesión y se cierra sola.", connect: "Conectar Spotify", changeId: "Cambiar Client ID",
+    readyT: "Todo listo", readyP: "Presiona el botón de confirmar o Enter para entrar.", enter: "Entrar",
+    setT: "Ajustes", setP: "Sesión y configuración de la app.", logout: "Cerrar sesión", close: "Volver",
+    noC: "Sin contenido todavía", noCs: "Reproduce algo en Spotify y vuelve a abrir la app.",
+    playlists: "Tus playlists", recent: "Reproducido recientemente", artists: "Tus artistas",
+    playlist: "Playlist", song: "Canción", artist: "Artista",
+    play: "Reproducir", pause: "Pausa", track: "Pista", settings: "Ajustes", back: "Atrás", vol: "Volumen", seek: "Adelantar",
+    premium: "Para reproducir necesitas Spotify Premium", authErr: "Error de sesión. Abre Ajustes y cierra sesión",
+    expired: "Tu sesión venció. Conecta Spotify otra vez", loadErr: "No se pudo cargar parte de tu biblioteca",
+    unsupported: "Este navegador no puede reproducir audio de Spotify (falta soporte DRM)", connecting: "Conectando el reproductor…",
+    cantPlay: "No se pudo reproducir (error ", pad: "Control conectado"
+  },
+  en: {
+    setupT: "Initial setup", setupP: "Paste your Client ID. In the Spotify dashboard, register this Redirect URI exactly:",
+    badHost: "Spotify does not accept “localhost”. Open this page with http://127.0.0.1:PORT/ or HTTPS.",
+    save: "Save", badId: "That Client ID doesn't look valid",
+    loginT: "Connect your account", loginP: "A Spotify window opens. Sign in and it closes by itself.", connect: "Connect Spotify", changeId: "Change Client ID",
+    readyT: "All set", readyP: "Press the confirm button or Enter to start.", enter: "Start",
+    setT: "Settings", setP: "Session and app configuration.", logout: "Sign out", close: "Back",
+    noC: "Nothing here yet", noCs: "Play something on Spotify and reopen the app.",
+    playlists: "Your playlists", recent: "Recently played", artists: "Your artists",
+    playlist: "Playlist", song: "Song", artist: "Artist",
+    play: "Play", pause: "Pause", track: "Track", settings: "Settings", back: "Back", vol: "Volume", seek: "Seek",
+    premium: "Spotify Premium is required to play music", authErr: "Session error. Open Settings and sign out",
+    expired: "Your session expired. Connect Spotify again", loadErr: "Part of your library could not be loaded",
+    unsupported: "This browser can't play Spotify audio (no DRM support)", connecting: "Connecting the player…",
+    cantPlay: "Could not play (error ", pad: "Controller connected"
+  }
+};
+var L = T[(navigator.language || "en").slice(0, 2)] || T.en;
+document.documentElement.lang = T[(navigator.language || "en").slice(0, 2)] ? (navigator.language || "en").slice(0, 2) : "en";
+
+// ---------- Datos básicos ----------
+var SCOPES = "streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played user-top-read playlist-read-private playlist-read-collaborative";
+var REDIRECT = location.origin + location.pathname.replace(/index\.html$/, "");   // registra este Redirect URI en el dashboard de Spotify (funciona también en subcarpetas, como GitHub Pages)
+var ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
+var ICON_PAUSE = '<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+
+var rows = [], r = 0, cols = [];
+var player = null, deviceId = null, vol = 0.8;
+var st = null, posAt = 0;
+var gateState = "";   // "setup", "login", "start", "settings" o "" (app abierta)
+var bgOn = false, bgTimer = null, lastBg = "";
+
+function $(id) { return document.getElementById(id); }
+function cssUrl(u) { return 'url("' + encodeURI(u).replace(/"/g, "%22") + '")'; }
+function toast(msg) {
+  var t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(function () { t.classList.remove("show"); }, 3200);
+}
+function clearSession() {
+  ["token", "refresh", "expires"].forEach(function (k) { localStorage.removeItem(k); });
+}
+
+// ---------- Login con Spotify (PKCE, sin secretos) ----------
+function randomText(n) {
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var a = new Uint8Array(n), s = "";
+  crypto.getRandomValues(a);
+  for (var i = 0; i < n; i++) { s += chars.charAt(a[i] % chars.length); }
+  return s;
+}
+async function makeChallenge(text) {
+  var hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(hash))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+async function login() {
+  var verifier = randomText(64);
+  localStorage.setItem("verifier", verifier);
+  var url = "https://accounts.spotify.com/authorize?" + new URLSearchParams({
+    response_type: "code",
+    client_id: localStorage.getItem("clientId"),
+    scope: SCOPES,
+    redirect_uri: REDIRECT,
+    code_challenge_method: "S256",
+    code_challenge: await makeChallenge(verifier)
+  });
+  var win = window.open(url, "spotifyLogin", "width=480,height=720");
+  if (!win) { location.href = url; }   // ventana bloqueada: usamos la misma pestaña
+}
+function saveToken(t) {
+  localStorage.setItem("token", t.access_token);
+  if (t.refresh_token) { localStorage.setItem("refresh", t.refresh_token); }
+  localStorage.setItem("expires", Date.now() + t.expires_in * 1000 - 60000);
+}
+async function tokenRequest(params) {
+  var res = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(params)
+  });
+  if (!res.ok) { throw new Error("token"); }
+  saveToken(await res.json());
+}
+async function getToken() {
+  if (Date.now() > Number(localStorage.getItem("expires"))) {
+    try {
+      await tokenRequest({ client_id: localStorage.getItem("clientId"), grant_type: "refresh_token", refresh_token: localStorage.getItem("refresh") });
+    } catch (e) {
+      clearSession();
+      showGate("login");
+      toast(L.expired);
+      throw e;
+    }
+  }
+  return localStorage.getItem("token");
+}
+async function api(path, method, body) {
+  var res = await fetch("https://api.spotify.com" + path, {
+    method: method || "GET",
+    headers: { Authorization: "Bearer " + await getToken(), "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) { throw new Error(res.status); }
+  var text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// ---------- Pantallas (configuración, login, entrar, ajustes) ----------
+function showGate(s) {
+  gateState = s;
+  var h = "";
+  if (s === "setup") {
+    h = "<h2>" + L.setupT + "</h2><p>" + L.setupP + "</p><code>" + REDIRECT + "</code>" +
+      (location.hostname === "localhost" || location.protocol === "file:" ? "<p>" + L.badHost + "</p>" : "") +
+      "<input id='cid' placeholder='Client ID' autocomplete='off'><button id='gbtn' class='btn' onclick='saveId()'>" + L.save + "</button>";
+  } else if (s === "login") {
+    h = "<h2>" + L.loginT + "</h2><p>" + L.loginP + "</p><button id='gbtn' class='btn' onclick='login()'>" + L.connect + "</button><button class='btn alt' onclick='resetId()'>" + L.changeId + "</button>";
+  } else if (s === "settings") {
+    h = "<h2>" + L.setT + "</h2><p>" + L.setP + "</p><button id='gbtn' class='btn' onclick='closeSettings()'>" + L.close + "</button><button class='btn alt' onclick='logout()'>" + L.logout + "</button><button class='btn alt' onclick='resetId()'>" + L.changeId + "</button>";
+  } else {
+    h = "<h2>" + L.readyT + "</h2><p>" + L.readyP + "</p><button id='gbtn' class='btn' onclick='enterApp()'>" + L.enter + "</button>";
+  }
+  $("card").innerHTML = h;
+  $("gate").classList.remove("hide");
+  setTimeout(function () { var f = $("cid") || $("gbtn"); if (f) { f.focus(); } }, 50);
+}
+function gateFocus(d) {   // mover el foco entre botones con cruceta / flechas
+  var els = [].slice.call($("card").querySelectorAll("input,button"));
+  var i = els.indexOf(document.activeElement);
+  els[Math.max(0, Math.min(els.length - 1, i + d))].focus();
+}
+function saveId() {
+  var id = $("cid").value.trim();
+  if (id.length < 10) { toast(L.badId); return; }
+  localStorage.setItem("clientId", id);
+  showGate("login");
+}
+function resetId() { localStorage.removeItem("clientId"); clearSession(); showGate("setup"); }
+function openSettings() { if (!gateState) { showGate("settings"); } }
+function closeSettings() { gateState = ""; $("gate").classList.add("hide"); }
+function logout() { clearSession(); location.reload(); }
+
+// ---------- Cargar contenido ----------
+function item(name, sub, images, uri) {
+  return { name: name, sub: sub, img: (images && images[0]) ? images[0].url : "", uri: uri };
+}
+function addRow(title, items, round) {
+  if (items.length) { rows.push({ title: title, items: items, round: round }); }
+}
+async function loadData() {
+  rows = [];
+  var errors = 0;
+  try {
+    var me = await api("/v1/me");
+    $("who").textContent = me.display_name || "";
+    if (me.images && me.images[0]) { $("avatar").style.backgroundImage = cssUrl(me.images[0].url); }
+  } catch (e) { errors++; }
+
+  try {
+    var lists = [];
+    var d = await api("/v1/me/playlists?limit=50");
+    d.items.forEach(function (p) {
+      if (p) { lists.push(item(p.name, L.playlist + (p.owner && p.owner.display_name ? " • " + p.owner.display_name : ""), p.images, p.uri)); }
+    });
+    addRow(L.playlists, lists, false);
+  } catch (e) { errors++; }
+
+  try {
+    var rec = [], seen = {};
+    var d2 = await api("/v1/me/player/recently-played?limit=20");
+    d2.items.forEach(function (x) {
+      var t = x.track;
+      if (!seen[t.uri]) { seen[t.uri] = 1; rec.push(item(t.name, L.song + " • " + t.artists[0].name, t.album.images, t.uri)); }
+    });
+    addRow(L.recent, rec, false);
+  } catch (e) { errors++; }
+
+  try {
+    var art = [];
+    var d3 = await api("/v1/me/top/artists?limit=20");
+    d3.items.forEach(function (a) { art.push(item(a.name, L.artist, a.images, a.uri)); });
+    addRow(L.artists, art, true);
+  } catch (e) { errors++; }
+
+  if (errors && gateState !== "login") { toast(L.loadErr); }
+}
+
+// ---------- Interfaz ----------
+function build() {
+  var box = $("rows");
+  box.innerHTML = "";
+  cols = [];
+  rows.forEach(function (row) {
+    cols.push(0);
+    var d = document.createElement("div");
+    d.className = "row" + (row.round ? " round" : "");
+    var lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.textContent = row.title;
+    var track = document.createElement("div");
+    track.className = "track";
+    row.items.forEach(function (it, i) {
+      var tile = document.createElement("div"), art = document.createElement("div"), nm = document.createElement("div"), sb = document.createElement("div");
+      tile.className = "tile"; tile.style.setProperty("--i", i);
+      art.className = "art"; if (it.img) { art.style.backgroundImage = cssUrl(it.img); }
+      nm.className = "nm"; nm.textContent = it.name;
+      sb.className = "sb"; sb.textContent = it.sub;
+      tile.append(art, nm, sb);
+      track.appendChild(tile);
+    });
+    d.append(lbl, track);
+    box.appendChild(d);
+  });
+  updateFocus();
+}
+function setBg(url) {
+  if (!url || url === lastBg) { return; }
+  lastBg = url;
+  var next = bgOn ? $("bgB") : $("bgA");
+  var old = bgOn ? $("bgA") : $("bgB");
+  bgOn = !bgOn;
+  next.style.backgroundImage = cssUrl(url);
+  next.classList.add("on");
+  old.classList.remove("on");
+}
+function updateFocus() {
+  if (!rows.length) {
+    $("ht").textContent = L.noC;
+    $("hs").textContent = L.noCs;
+    return;
+  }
+  var box = $("rows");
+  for (var ri = 0; ri < box.children.length; ri++) {
+    var rowEl = box.children[ri];
+    rowEl.classList.toggle("on", ri === r);
+    var track = rowEl.querySelector(".track");
+    for (var i = 0; i < track.children.length; i++) {
+      track.children[i].classList.toggle("f", ri === r && i === cols[ri]);
+    }
+    track.style.setProperty("--off", Math.max(0, cols[ri] - 4));
+  }
+  box.style.setProperty("--r", r);
+
+  var it = rows[r].items[cols[r]];
+  $("ht").textContent = it.name;
+  $("hs").textContent = it.sub;
+  var hero = $("hero");
+  hero.classList.remove("anim");
+  void hero.offsetWidth;
+  hero.classList.add("anim");
+  clearTimeout(bgTimer);
+  bgTimer = setTimeout(function () { setBg(it.img); }, 120);
+}
+function move(dx, dy) {
+  if (!rows.length) { return; }
+  if (dy) { r = Math.max(0, Math.min(rows.length - 1, r + dy)); }
+  if (dx) { cols[r] = Math.max(0, Math.min(rows[r].items.length - 1, cols[r] + dx)); }
+  updateFocus();
+}
+function back() {   // B (Xbox) / ○ (PlayStation): primero al inicio de la fila, luego a la fila de arriba
+  if (!rows.length) { return; }
+  if (cols[r] > 0) { cols[r] = 0; } else if (r > 0) { r--; }
+  updateFocus();
+}
+
+// Etiquetas de botones según el tipo de control
+var KINDS = {
+  xbox: { a: ["A", "#5fd46a"], b: ["B", "#ff6b6b"], x: ["X", "#6bb0ff"], y: ["Y", "#ffd24d"], l: "LB", r: "RB" },
+  ps:   { a: ["✕", "#7d9bff"], b: ["○", "#ff7d8a"], x: ["□", "#f08ad0"], y: ["△", "#5fd4a0"], l: "L1", r: "R1" }
+};
+var kind = "";
+function setKind(k) {
+  if (k === kind) { return; }
+  kind = k;
+  var m = KINDS[k];
+  function h(btn, txt) { return "<span><b style='color:" + btn[1] + "'>" + btn[0] + "</b>" + txt + "</span>"; }
+  $("hints").innerHTML = h(m.a, L.play) + h(m.b, L.back) + h(m.x, L.pause) +
+    "<span><b>" + m.l + "</b><b>" + m.r + "</b>" + L.track + "</span>" + h(m.y, L.settings) +
+    "<span><b>R↕</b>" + L.vol + "</span><span><b>R↔</b>" + L.seek + "</span>";
+}
+setKind("xbox");
+
+// ---------- Reproductor ----------
+function loadSDK() {
+  window.onSpotifyWebPlaybackSDKReady = function () {
+    player = new Spotify.Player({
+      name: "Spotify Console UI",
+      getOAuthToken: async function (cb) { try { cb(await getToken()); } catch (e) {} },
+      volume: vol
+    });
+    player.addListener("ready", function (e) {
+      deviceId = e.device_id;
+      api("/v1/me/player", "PUT", { device_ids: [deviceId], play: false }).catch(function () {});
+    });
+    player.addListener("player_state_changed", showState);
+    player.addListener("account_error", function () { toast(L.premium); });
+    player.addListener("authentication_error", function () { toast(L.authErr); });
+    player.addListener("initialization_error", function () { toast(L.unsupported); });
+    player.connect();
+  };
+  var s = document.createElement("script");
+  s.src = "https://sdk.scdn.co/spotify-player.js";
+  s.onerror = function () { toast(L.unsupported); };
+  document.body.appendChild(s);
+}
+function showState(s) {
+  if (!s) { return; }
+  st = s;
+  posAt = Date.now();
+  var t = s.track_window.current_track;
+  $("bar").classList.add("playing");
+  $("npImg").style.backgroundImage = t.album.images[0] ? cssUrl(t.album.images[0].url) : "";
+  $("npT").textContent = t.name;
+  $("npA").textContent = t.artists.map(function (a) { return a.name; }).join(", ");
+  $("pp").innerHTML = s.paused ? ICON_PLAY : ICON_PAUSE;
+}
+function fmt(ms) {
+  var s = Math.floor(ms / 1000);
+  return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
+}
+function curPos() {
+  if (!st) { return 0; }
+  return Math.min(st.duration, st.position + (st.paused ? 0 : Date.now() - posAt));
+}
+function tick() {
+  if (!st) { return; }
+  var pos = curPos();
+  $("fill").style.width = (pos / st.duration * 100) + "%";
+  var a = fmt(pos), b = fmt(st.duration);
+  if ($("t1").textContent !== a) { $("t1").textContent = a; }
+  if ($("t2").textContent !== b) { $("t2").textContent = b; }
+}
+
+async function playItem(it) {
+  if (!deviceId) { toast(L.connecting); return; }
+  var body = it.uri.indexOf(":track:") > 0 ? { uris: [it.uri] } : { context_uri: it.uri };
+  try { await api("/v1/me/player/play?device_id=" + deviceId, "PUT", body); }
+  catch (e) { toast(L.cantPlay + e.message + ")"); }
+}
+function select() {
+  if (!rows.length) { return; }
+  var tile = $("rows").children[r].querySelector(".track").children[cols[r]];
+  tile.classList.add("hit");
+  setTimeout(function () { tile.classList.remove("hit"); }, 400);
+  playItem(rows[r].items[cols[r]]);
+}
+function togglePlay() { if (player) { player.togglePlay(); } }
+function next() { if (player) { player.nextTrack(); } }
+function prev() { if (player) { player.previousTrack(); } }
+function setVol(v) {
+  vol = Math.max(0, Math.min(1, v));
+  if (player) { player.setVolume(vol); }
+  toast(L.vol + " " + Math.round(vol * 100) + "%");
+}
+function seekBy(ms) {
+  if (!player || !st) { return; }
+  player.seek(Math.max(0, Math.min(st.duration - 500, curPos() + ms)));
+}
+
+// ---------- Pantalla completa y cursor ----------
+function goFullscreen() {   // si ya corre como app instalada, no hace falta
+  if (document.fullscreenElement || matchMedia("(display-mode: fullscreen)").matches) { return; }
+  try { document.documentElement.requestFullscreen().catch(function () {}); } catch (e) {}
+}
+var idleTimer;
+function wake() {
+  document.body.classList.remove("idle");
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(function () { document.body.classList.add("idle"); }, 3000);
+}
+["mousemove", "mousedown"].forEach(function (ev) { document.addEventListener(ev, wake); });
+wake();
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").catch(function () {}); }
+
+// ---------- Entrar a la app ----------
+async function enterApp() {
+  $("gbtn").disabled = true;
+  await loadData();
+  build();
+  loadSDK();
+  gateState = "";
+  $("gate").classList.add("hide");
+  goFullscreen();
+  document.body.classList.add("intro");
+  setTimeout(function () { document.body.classList.remove("intro"); }, 2500);
+}
+
+// ---------- Controles: teclado ----------
+document.addEventListener("keydown", function (e) {
+  var k = e.key;
+  if (gateState) {
+    var a = document.activeElement;
+    if (k === "Enter" && a && a.tagName === "INPUT") { e.preventDefault(); $("gbtn").click(); }   // en botones, Enter ya hace clic solo
+    else if (k === "Escape" && gateState === "settings") { closeSettings(); }
+    else if (k === "ArrowDown") { e.preventDefault(); gateFocus(1); }
+    else if (k === "ArrowUp") { e.preventDefault(); gateFocus(-1); }
+    return;
+  }
+  if (k === "ArrowLeft") { move(-1, 0); }
+  else if (k === "ArrowRight") { move(1, 0); }
+  else if (k === "ArrowUp") { move(0, -1); }
+  else if (k === "ArrowDown") { move(0, 1); }
+  else if (k === "Enter") { select(); }
+  else if (k === "Backspace") { back(); }
+  else if (k === " ") { e.preventDefault(); togglePlay(); }
+  else if (k === "n") { next(); }
+  else if (k === "p") { prev(); }
+  else if (k === "+" || k === "=") { setVol(vol + 0.05); }
+  else if (k === "-") { setVol(vol - 0.05); }
+  else if (k === ".") { seekBy(10000); }
+  else if (k === ",") { seekBy(-10000); }
+  else if (k === "f" || k === "F") { document.fullscreenElement ? document.exitFullscreen() : goFullscreen(); }
+  else if (k === "Escape") { openSettings(); }
+});
+
+// ---------- Controles: gamepad (Xbox, PlayStation y genéricos con mapeo estándar) ----------
+var was = {}, lastMove = 0, lastVol = 0, lastSeek = 0;
+function getPad() {
+  var list = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (var i = 0; i < list.length; i++) { if (list[i]) { return list[i]; } }
+  return null;
+}
+function padKind(p) {
+  var id = (p.id || "").toLowerCase();
+  return /054c|dualsense|dualshock|playstation|wireless controller/.test(id) ? "ps" : "xbox";
+}
+function readPad() {
+  var p = getPad(), now = Date.now();
+  if (p) {
+    setKind(padKind(p));
+    var edge = {};
+    for (var b = 0; b < 6; b++) {   // 0=A/✕ 1=B/○ 2=X/□ 3=Y/△ 4=LB/L1 5=RB/R1
+      var d = !!(p.buttons[b] && p.buttons[b].pressed);
+      edge[b] = d && !was[b];
+      was[b] = d;
+    }
+    function on(i) { return !!(p.buttons[i] && p.buttons[i].pressed); }
+    var dx = (on(15) || p.axes[0] > 0.5 ? 1 : 0) - (on(14) || p.axes[0] < -0.5 ? 1 : 0);
+    var dy = (on(13) || p.axes[1] > 0.5 ? 1 : 0) - (on(12) || p.axes[1] < -0.5 ? 1 : 0);
+
+    if (gateState) {
+      if (edge[0]) { var a = document.activeElement; if (a && a.tagName === "BUTTON") { a.click(); } }
+      if (edge[1] && gateState === "settings") { closeSettings(); }
+      if (dy && now - lastMove > 200) { gateFocus(dy); lastMove = now; }
+    } else {
+      if (edge[0]) { select(); }
+      if (edge[1]) { back(); }
+      if (edge[2]) { togglePlay(); }
+      if (edge[3]) { openSettings(); }
+      if (edge[4]) { prev(); }
+      if (edge[5]) { next(); }
+      if (dx || dy) {
+        if (now - lastMove > 170) { move(dx, dy); lastMove = now; }   // mantener presionado repite
+      } else { lastMove = 0; }
+      var sx = p.axes[2] || 0, sy = p.axes[3] || 0;   // stick derecho: volumen y adelantar
+      if (Math.abs(sy) > 0.6 && now - lastVol > 130) { lastVol = now; setVol(vol - Math.sign(sy) * 0.05); }
+      if (Math.abs(sx) > 0.6 && now - lastSeek > 250) { lastSeek = now; seekBy(Math.sign(sx) * 10000); }
+    }
+  }
+  tick();
+  requestAnimationFrame(readPad);
+}
+window.addEventListener("gamepadconnected", function () { toast(L.pad); });
+readPad();
+
+// ---------- Arranque ----------
+window.addEventListener("storage", function (e) {   // la ventana de login avisa por aquí cuando termina
+  if (e.key === "token" && e.newValue && gateState === "login") { showGate("start"); }
+});
+async function init() {
+  var code = new URLSearchParams(location.search).get("code");
+  if (code) {
+    try {
+      await tokenRequest({ client_id: localStorage.getItem("clientId"), grant_type: "authorization_code", code: code, redirect_uri: REDIRECT, code_verifier: localStorage.getItem("verifier") });
+    } catch (e) {}
+    if (window.opener) { window.close(); return; }
+    history.replaceState(null, "", REDIRECT);
+  }
+  if (!localStorage.getItem("clientId")) { showGate("setup"); }
+  else if (!localStorage.getItem("token")) { showGate("login"); }
+  else { showGate("start"); }
+}
+init();
+</script>
+</body>
+</html>
