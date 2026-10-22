@@ -688,6 +688,15 @@ if (HOST) {
     else if (c.indexOf("seek:") === 0) { player.seek(parseInt(c.slice(5), 10) || 0); }
   });
 }
+// Diagnóstico (solo con --debug): cada 2 s le dice a la app si la página está visible y cuántos cuadros dibujó
+var frameCount = 0;
+(function countFrames() { frameCount++; requestAnimationFrame(countFrames); })();
+setInterval(function () {
+  if (HOST && /[?&]debug/.test(location.search)) {
+    hostSend({ type: "log", msg: "visibilidad=" + document.visibilityState + " foco=" + document.hasFocus() + " cuadros_en_2s=" + frameCount });
+  }
+  frameCount = 0;
+}, 2000);
 function updateMediaSession(s, t) {
   if (HOST) {
     hostSend({
