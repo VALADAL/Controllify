@@ -33,6 +33,7 @@ A Spotify interface designed for TVs and game controllers, including Xbox and Pl
 - Controller input is ignored while another window or overlay (like a launcher menu) is in front.
 - **Close app** option in Settings.
 - Install it as an app on your computer.
+- Optional Windows app (`Controllify.exe`) that works with [Playnite](https://playnite.link). See [Windows app and Playnite](#windows-app-and-playnite).
 
 ## Screenshots
 
@@ -125,6 +126,7 @@ Press **Menu ☰ / OPTIONS**, the `H` key, or click the floating **Controls** bu
 - **PlayStation controllers:** work in desktop browsers.
 - **Xbox console browser:** the interface and controller may work, but playback depends on browser compatibility.
 - **Windows media controls (SMTC):** work in Chrome and Edge on Windows.
+- **Playnite (Desktop and Fullscreen):** use the Windows app. See [Windows app and Playnite](#windows-app-and-playnite).
 
 ## Known limitations
 
@@ -138,11 +140,103 @@ Controllify uses **Authorization Code with PKCE**, so it does not need a server 
 
 To disconnect your account, open **Settings** in Controllify and sign out.
 
+## Windows app and Playnite
+
+Besides the web page, Controllify is available as a small Windows app, `Controllify.exe`. It opens the same hosted page in its own borderless full-screen window, adds the Windows media overlay (SMTC), and can be launched like any game from launchers such as [Playnite](https://playnite.link).
+
+### Download (recommended)
+
+1. Go to **[Releases](https://github.com/valadal/Controllify/releases/latest)** and download `Controllify-win-x64.zip`.
+2. Extract the zip to a folder you will keep, for example `C:\Apps\Controllify`. Don't run it from inside the zip.
+3. Run `Controllify.exe`. The first time, Windows SmartScreen may say "Windows protected your PC" because the app isn't code-signed. Click **More info → Run anyway**.
+4. Do the [first-time setup](#first-time-setup) (Client ID) inside the app. You only need to do it once.
+
+**Requirements:**
+
+- Windows 10 (version 2004, build 19041) or newer.
+- The Microsoft Edge **WebView2 Runtime**. It comes with Windows 11 and most up-to-date Windows 10 PCs. If the app complains that it's missing, [download it here](https://developer.microsoft.com/microsoft-edge/webview2/).
+- An internet connection. The app loads the hosted page.
+
+You don't need to install .NET: the download already includes it.
+
+The app loads the hosted page, so interface updates reach you automatically. You only need a new download when a release says the Windows app itself changed. Its data (sign-in, settings, log) is stored in `%LocalAppData%\Controllify`.
+
+### Add Controllify to Playnite
+
+1. In Playnite, add a new game with **Add Game → Manually**, or open the "Spotify" entry you already have and choose **Edit**.
+2. On the **General** tab, set the name (for example "Controllify") and add a cover or background if you like.
+3. Open the **Actions** tab and click **Add Action**.
+4. Fill it in like this:
+
+   | Field | Value |
+   |---|---|
+   | Type | **File** |
+   | Path | Browse to `Controllify.exe` |
+   | Arguments | `--no-smtc` (see the note below) |
+   | Working Directory | Leave empty |
+   | Play action | Checked |
+   | Tracking Mode | **Default** |
+
+5. Click **Save**, then launch it from Playnite Desktop or Fullscreen mode.
+
+**Set Arguments to `--no-smtc`.** Without it, Controllify can show up in Windows as two media sessions: one from the app and one from the browser inside it. Playnite themes with a built-in media player can get confused by that. `--no-smtc` leaves only the browser's media session, which those players read best, and the title, cover art and playback buttons still come through it. This is how the action should look:
+
+<p align="center"><img src="docs/screenshot-playnite-action.jpg" alt="Playnite Actions tab with Controllify.exe as the path and --no-smtc as the argument" width="100%"></p>
+
+Good to know:
+
+- Controllify ignores controller input while another window is in front, so it won't react while you navigate Playnite.
+- Only one copy runs at a time. If it's already open, launching it again does nothing.
+- To quit, open **Settings** in Controllify and choose **Close app**.
+- If your Playnite theme treats Controllify like a full-screen game and misbehaves, add the `--windowed` argument.
+
+### Options (command-line arguments)
+
+In Playnite, put them in the **Arguments** field of the action, separated by spaces. Only `--no-smtc` is recommended; the others are optional.
+
+| Argument | What it does |
+|---|---|
+| `--windowed` | Opens a normal maximized window instead of borderless full screen. Useful if a launcher theme mistakes the app for a full-screen game. |
+| `--no-smtc` | **Recommended for Playnite.** Turns off the app's own Windows media session and uses only the embedded browser's media session, so themes with a media player read a single session. |
+| `--no-guardian` | Doesn't start the helper process (see below). |
+| `--debug` | For troubleshooting only. Shows media messages on screen and writes a log to `%LocalAppData%\Controllify\log.txt`. Don't leave it on. |
+
+### About the helper process and antivirus
+
+In Task Manager you will see two `Controllify.exe` processes: the app and a small helper. The helper only watches the app and resumes it if Windows or another tool suspends it, which would otherwise freeze the music. You can turn it off with `--no-guardian`.
+
+Because the app isn't code-signed and the helper resumes a suspended process, Windows SmartScreen or some antivirus programs may show a warning. The complete source code is in this repository, and you can build the app yourself.
+
+### Build it yourself
+
+You need the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) on Windows. From the folder that contains `Controllify.csproj` and `Program.cs`:
+
+```bash
+cd windows-app
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+```
+
+The result is a single file, `publish\Controllify.exe`. Run it, or zip it to share it.
+
+For a much smaller build that needs the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) installed on each PC, use `--self-contained false` instead. Don't enable trimming (`PublishTrimmed`), because WinForms and WebView2 don't support it reliably.
+
 ## Support the project
 
 If Controllify is useful to you, you can support its development with a [PayPal donation](https://paypal.me/Valadal). It helps me keep creating more options and new projects.
 
 Ideas, feedback, or proposals for new apps and features are always welcome: find me on Discord as **@valadal**.
+
+## Credits
+
+Controllify was created by **Valadal**. You can find me on Discord as **@valadal**.
+
+If you fork, modify, or redistribute Controllify, please:
+
+- **Keep the license and copyright notice.** The MIT License requires this.
+- **Give visible credit** to the original project, for example "Based on [Controllify](https://github.com/valadal/Controllify) by Valadal" in your README or in your app's about or settings screen.
+- **Don't present your version as the original**, and don't suggest that I or Spotify endorse it.
+
+Thank you for respecting the work behind it.
 
 ## License
 
