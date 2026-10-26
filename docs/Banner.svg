@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="title desc">
+<title id="title">Controllify</title><desc id="desc">A modern dark green Controllify banner for a Spotify interface on TVs and game controllers.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#080b0e"/><stop offset=".56" stop-color="#0c1712"/><stop offset="1" stop-color="#10271a"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#1ed760" stop-opacity=".24"/><stop offset="1" stop-color="#1ed760" stop-opacity="0"/></radialGradient>
+ <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42f581"/><stop offset="1" stop-color="#12c853"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eafff0" stop-opacity=".14"/><stop offset="1" stop-color="#eafff0" stop-opacity=".025"/></linearGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="24"/></filter>
+ <clipPath id="clip"><rect width="1280" height="320" rx="26"/></clipPath>
+</defs>
+<g clip-path="url(#clip)">
+ <rect width="1280" height="320" fill="url(#bg)"/>
+ <ellipse cx="1080" cy="160" rx="260" ry="205" fill="url(#glow)"/>
+ <ellipse cx="1145" cy="72" rx="150" ry="68" fill="#1ed760" opacity=".055" filter="url(#blur)"/>
+ <!-- understated, deliberately off-center circuit lines -->
+ <g fill="none" stroke="#b8f8cc" stroke-opacity=".075" stroke-width="1.2"><path d="M790 0v72q0 12 12 12h35"/><path d="M835 320v-42q0-12 12-12h55"/><path d="M1045 0v32q0 10 10 10h40"/><path d="M1280 226h-38q-12 0-12 12v28"/></g>
+ <rect x="1" y="1" width="1278" height="318" rx="25" fill="none" stroke="#ffffff" stroke-opacity=".11"/>
+ <!-- brand mark -->
+ <circle cx="121" cy="160" r="55" fill="#1ed760" opacity=".12"/>
+ <circle cx="116" cy="154" r="56" fill="url(#green)"/>
+ <g transform="translate(-4 0)" fill="none" stroke="#07130c" stroke-width="8" stroke-linecap="round"><path d="M83 136c24-8 52-5 73 8"/><path d="M88 157c20-6 45-4 64 7"/><path d="M94 177c16-5 34-3 49 5"/></g>
+ <!-- clear, aligned type hierarchy -->
+ <text x="205" y="147" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="68" font-weight="760" letter-spacing="-2.2" fill="#f7faf8">Controllify</text>
+ <path d="M208 174h54" stroke="#1ed760" stroke-width="4" stroke-linecap="round"/>
+ <text x="208" y="211" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="23" font-weight="450" fill="#bdc9c1">Spotify, made for your TV.</text>
+ <circle cx="212" cy="250" r="3.5" fill="#1ed760"/>
+ <text x="225" y="254" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="650" letter-spacing="2" fill="#8fa397">BUILT FOR THE BIG SCREEN</text>
+ <!-- right-side artwork: free-floating glass controller, intentionally angled -->
+ <circle cx="1068" cy="158" r="116" fill="none" stroke="#d9ffe4" stroke-opacity=".07" stroke-width="1.2"/>
+ <circle cx="1068" cy="158" r="91" fill="none" stroke="#1ed760" stroke-opacity=".11" stroke-width="1.2" stroke-dasharray="2 8"/>
+ <g transform="translate(1067 157) rotate(-8)">
+  <path d="M-85 -29 Q-75 -49 -50 -48 L50 -48 Q75 -49 85 -29 L105 30 Q111 53 93 62 Q76 69 62 49 L43 27 H-43 L-62 49 Q-76 69 -93 62 Q-111 53 -105 30Z" fill="url(#glass)" stroke="#e8f7ed" stroke-opacity=".88" stroke-width="5.5" stroke-linejoin="round"/>
+  <path d="M-62 -15v27 M-75 -1h27" fill="none" stroke="#dff8e7" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="57" cy="-13" r="5.5" fill="#1ed760"/><circle cx="73" cy="5" r="5.5" fill="#f2fff5"/><circle cx="39" cy="5" r="5.5" fill="#f2fff5"/><circle cx="57" cy="23" r="5.5" fill="#f2fff5"/>
+  <path d="M-14 -57h28" stroke="#1ed760" stroke-width="3" stroke-linecap="round"/>
+ </g>
+ <!-- small offset status accent -->
+ <g transform="translate(1005 250)"><rect x="0" y="12" width="4" height="8" rx="2" fill="#1ed760"/><rect x="9" y="5" width="4" height="15" rx="2" fill="#1ed760"/><rect x="18" y="0" width="4" height="20" rx="2" fill="#1ed760"/><rect x="27" y="8" width="4" height="12" rx="2" fill="#1ed760"/><text x="43" y="17" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="650" letter-spacing="1.8" fill="#9fb7a7">PLAY YOUR WAY</text></g>
+ <path d="M28 1H490" stroke="#ffffff" stroke-opacity=".13"/>
+</g></svg>
